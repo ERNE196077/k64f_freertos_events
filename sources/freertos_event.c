@@ -77,7 +77,7 @@ static EventGroupHandle_t event_group = NULL;
  */
 int main(void)
 {
-    BOARD_InitPins();
+	BOARD_InitPins();
     BOARD_BootClockRUN();
     BOARD_InitDebugConsole();
     event_group = xEventGroupCreate();
@@ -88,6 +88,12 @@ int main(void)
     xTaskCreate(write_task_5, "WRITE_TASK_5", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, NULL);
     xTaskCreate(read_task, "READ_TASK", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 2, NULL);
     /* Start scheduling. */
+    PRINTF("####################################\n\r");
+    PRINTF("####################################\n\r");
+    PRINTF("####################################\n\r");
+    PRINTF("####################################\n\r");
+    PRINTF("####################################\n\r");
+
     vTaskStartScheduler();
     for (;;)
         ;
@@ -100,7 +106,9 @@ static void write_task_1(void *pvParameters)
 {
     while (1)
     {
+        PRINTF("Task T0 Activated. Flag 0 set.\n\r");
         xEventGroupSetBits(event_group, T0);
+        vTaskSuspend(NULL);
     }
 }
 
@@ -111,7 +119,10 @@ static void write_task_2(void *pvParameters)
 {
     while (1)
     {
+        PRINTF("Task T1 Activated. Flag 1 set.\n\r");
         xEventGroupSetBits(event_group, T1);
+        vTaskSuspend(NULL);
+
     }
 }
 
@@ -122,7 +133,9 @@ static void write_task_3(void *pvParameters)
 {
     while (1)
     {
+        PRINTF("Task T2 Activated. Flag 2 set.\n\r");
         xEventGroupSetBits(event_group, T2);
+        vTaskSuspend(NULL);
     }
 }
 /*!
@@ -132,7 +145,9 @@ static void write_task_4(void *pvParameters)
 {
     while (1)
     {
+        PRINTF("Task T3 Activated. Flag 3 set.\n\r");
         xEventGroupSetBits(event_group, T3);
+        vTaskSuspend(NULL);
     }
 }
 /*!
@@ -142,7 +157,9 @@ static void write_task_5(void *pvParameters)
 {
     while (1)
     {
+        PRINTF("Task T4 Activated. Flag 4 set.\n\r");
         xEventGroupSetBits(event_group, T4);
+        vTaskSuspend(NULL);
     }
 }
 
@@ -153,21 +170,25 @@ static void read_task(void *pvParameters)
     {
         event_bits = xEventGroupWaitBits(event_group,    /* The event group handle. */
                                          TasksBits,        /* The bit pattern the event group is waiting for. */
-                                         pdTRUE,         /* BIT_0 and BIT_4 will be cleared automatically. */
 
-										 /* Switch to wait for all tasks activate its bits -> AND */
-                                         pdFALSE,        /* Don't wait for ALL bits, either bit unblock task. */
+										 /* Uncomment to OR condition */
+										 pdTRUE,         /* BIT_0 and BIT_4 will be cleared automatically. */
+										 pdFALSE,        /* No wait for ALL bits, either bit unblock task. */
+
+										 /* Uncomment to AND condition*/
+                                         //pdFALSE,        /* BIT_0 and BIT_4 will NOT be cleared. */
                                          //pdTRUE,        /* WAIT for ALL bits, either bit unblock task. */
                                          
                                          portMAX_DELAY); /* Block indefinitely to wait for the condition to be met. */
 
+        PRINTF("\n\n\rEVENT BIT CONDITION\n\n\r");
         if ((event_bits & (TasksBits)) == (TasksBits))
         {
-            PRINTF("All tasks have been activated.");
+            PRINTF("All tasks activated\n\r");
         }
         else 
         {
-            PRINTF("At least one task was activated ");
+            PRINTF("At least one task \n\r");
         }
     }
 }
